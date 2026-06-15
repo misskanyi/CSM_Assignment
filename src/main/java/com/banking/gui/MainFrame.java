@@ -33,10 +33,12 @@ public class MainFrame extends JFrame {
         inputPanel = new InputPanel();
         tableOutputPanel = new TableOutputPanel();
         statisticsOutputPanel = new StatisticsOutputPanel();
+        InstructionsPanel instructionsPanel = new InstructionsPanel();
 
         inputPanel.setSimulationListener(this::runSimulation);
 
         JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("How to Use", instructionsPanel);
         tabbedPane.addTab("Input", inputPanel);
         tabbedPane.addTab("Output 1: Table", tableOutputPanel);
         tabbedPane.addTab("Output 2: Statistics", statisticsOutputPanel);
