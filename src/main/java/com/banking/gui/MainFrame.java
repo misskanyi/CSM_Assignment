@@ -301,8 +301,8 @@ public class MainFrame extends JFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                double[] interArrivalTimes = QueueSimulator.generateInterArrivalTimes(iatRandoms);
-                double[] serviceTimes = QueueSimulator.generateServiceTimes(serviceRandoms);
+                double[] interArrivalTimes = simulator.generateInterArrivalTimes(iatRandoms);
+                double[] serviceTimes = simulator.generateServiceTimes(serviceRandoms);
                 lastResults = simulator.simulate(interArrivalTimes, serviceTimes);
                 lastStatistics = simulator.computeStatistics(lastResults);
                 return null;
