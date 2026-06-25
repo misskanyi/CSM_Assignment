@@ -61,6 +61,8 @@ public class TableOutputPanel extends JPanel {
                         double wait = Double.parseDouble(getValueAt(row, column).toString());
                         if (wait > 0) {
                             c.setForeground(GameTheme.ACCENT);
+                        } else {
+                            c.setForeground(GameTheme.SUCCESS);
                         }
                     } catch (NumberFormatException ignored) {}
                 }
