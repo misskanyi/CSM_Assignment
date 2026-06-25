@@ -53,9 +53,9 @@ public class InputPanel extends JPanel {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { updateCount(serviceTextArea, serviceCountLabel); }
         });
         
-        contentPanel.add(createDataCard("🕐", "Inter-Arrival Times", 
+        contentPanel.add(createDataCard("", "Inter-Arrival Times",
                 "Uniform(1, 8) minutes", iatTextArea, true));
-        contentPanel.add(createDataCard("⏱️", "Service Times", 
+        contentPanel.add(createDataCard("", "Service Times",
                 "Uniform(1, 6) minutes", serviceTextArea, false));
         
         // Button panel
@@ -75,14 +75,10 @@ public class InputPanel extends JPanel {
         JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         titleRow.setOpaque(false);
         
-        JLabel icon = new JLabel("🎮");
-        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JLabel title = new JLabel("Simulation Setup");
         title.setFont(GameTheme.FONT_HEADER);
         title.setForeground(GameTheme.TEXT_PRIMARY);
-        
-        titleRow.add(icon);
+
         titleRow.add(title);
         
         // Subtitle info card
@@ -100,14 +96,10 @@ public class InputPanel extends JPanel {
         infoCard.setOpaque(false);
         infoCard.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         
-        JLabel infoIcon = new JLabel("ℹ️");
-        infoIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
-        
         JLabel infoText = new JLabel("Enter 100 random numbers (0-1) for each dataset, or generate them automatically");
         infoText.setFont(GameTheme.FONT_BODY);
         infoText.setForeground(GameTheme.TEXT_SECONDARY);
-        
-        infoCard.add(infoIcon);
+
         infoCard.add(infoText);
         
         panel.add(titleRow, BorderLayout.NORTH);
@@ -253,11 +245,11 @@ public class InputPanel extends JPanel {
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
         
-        JButton generateBtn = GameTheme.createSecondaryButton("🎲 Generate Random");
-        JButton loadExcelBtn = GameTheme.createPrimaryButton("📂 Load Excel");
-        JButton saveTemplateBtn = GameTheme.createGameButton("💾 Save Template", GameTheme.BACKGROUND_ELEVATED);
-        JButton clearBtn = GameTheme.createGameButton("🔄 Clear", GameTheme.DANGER);
-        JButton runBtn = GameTheme.createAccentButton("▶️ Run Simulation");
+        JButton generateBtn = GameTheme.createSecondaryButton("Generate Random");
+        JButton loadExcelBtn = GameTheme.createPrimaryButton("Load Excel");
+        JButton saveTemplateBtn = GameTheme.createGameButton("Save Template", GameTheme.BACKGROUND_ELEVATED);
+        JButton clearBtn = GameTheme.createGameButton("Clear", GameTheme.DANGER);
+        JButton runBtn = GameTheme.createAccentButton("Run Simulation");
         
         generateBtn.addActionListener(e -> generateRandomNumbers());
         loadExcelBtn.addActionListener(e -> loadFromExcel());

@@ -111,14 +111,10 @@ public class TableOutputPanel extends JPanel {
         JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         titleRow.setOpaque(false);
         
-        JLabel icon = new JLabel("📊");
-        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
         JLabel title = new JLabel("Simulation Results");
         title.setFont(GameTheme.FONT_HEADER);
         title.setForeground(GameTheme.TEXT_PRIMARY);
-        
-        titleRow.add(icon);
+
         titleRow.add(title);
         
         // Record count badge
@@ -147,8 +143,8 @@ public class TableOutputPanel extends JPanel {
         legendPanel.setOpaque(false);
         legendPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         
-        legendPanel.add(createLegendItem("🟡", "Waited", GameTheme.ACCENT));
-        legendPanel.add(createLegendItem("🟢", "No Wait", GameTheme.SUCCESS));
+        legendPanel.add(createLegendItem("■", "Waited", GameTheme.ACCENT));
+        legendPanel.add(createLegendItem("■", "No Wait", GameTheme.SUCCESS));
         
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);

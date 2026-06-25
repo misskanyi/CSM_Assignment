@@ -26,15 +26,15 @@ public class InstructionsPanel extends JPanel {
         contentPanel.setOpaque(false);
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-        contentPanel.add(createAccordionSection("🏦", "What This Simulates", createWhatSection(), true));
+        contentPanel.add(createAccordionSection("", "What This Simulates", createWhatSection(), true));
         contentPanel.add(Box.createVerticalStrut(12));
-        contentPanel.add(createAccordionSection("🎮", "How to Play", createHowToSection(), false));
+        contentPanel.add(createAccordionSection("", "How to Play", createHowToSection(), false));
         contentPanel.add(Box.createVerticalStrut(12));
-        contentPanel.add(createAccordionSection("📊", "Understanding the Results", createOutputsSection(), false));
+        contentPanel.add(createAccordionSection("", "Understanding the Results", createOutputsSection(), false));
         contentPanel.add(Box.createVerticalStrut(12));
-        contentPanel.add(createAccordionSection("💡", "Key Insights", createInsightsSection(), false));
+        contentPanel.add(createAccordionSection("", "Key Insights", createInsightsSection(), false));
         contentPanel.add(Box.createVerticalStrut(12));
-        contentPanel.add(createAccordionSection("⭐", "Pro Tips", createTipsSection(), false));
+        contentPanel.add(createAccordionSection("", "Pro Tips", createTipsSection(), false));
 
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setOpaque(false);
@@ -54,14 +54,10 @@ public class InstructionsPanel extends JPanel {
         JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         titleRow.setOpaque(false);
 
-        JLabel icon = new JLabel("📖");
-        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-
         JLabel title = new JLabel("Welcome to Queue Simulator!");
         title.setFont(GameTheme.FONT_TITLE);
         title.setForeground(GameTheme.TEXT_PRIMARY);
 
-        titleRow.add(icon);
         titleRow.add(title);
 
         JPanel badge = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8)) {
@@ -212,9 +208,9 @@ public class InstructionsPanel extends JPanel {
 
         panel.add(createParagraph(text));
         panel.add(Box.createVerticalStrut(15));
-        panel.add(createBulletPoint("🎲", "Generates random inter-arrival times (1-8 minutes)"));
-        panel.add(createBulletPoint("⏱️", "Generates random service times (1-6 minutes)"));
-        panel.add(createBulletPoint("📈", "Tracks arrivals, waiting, service, and departures"));
+        panel.add(createBulletPoint("•", "Generates random inter-arrival times (1-8 minutes)"));
+        panel.add(createBulletPoint("•", "Generates random service times (1-6 minutes)"));
+        panel.add(createBulletPoint("•", "Tracks arrivals, waiting, service, and departures"));
 
         return panel;
     }
@@ -269,16 +265,16 @@ public class InstructionsPanel extends JPanel {
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        panel.add(createInsightCard("⚡", "Arrival vs Service Rate",
+        panel.add(createInsightCard("1", "Arrival vs Service Rate",
                 "When customers arrive faster than they can be served, queues build up quickly."));
         panel.add(Box.createVerticalStrut(12));
-        panel.add(createInsightCard("🎯", "Single Server Bottleneck",
+        panel.add(createInsightCard("2", "Single Server Bottleneck",
                 "With one teller, any burst of arrivals forces later customers to wait."));
         panel.add(Box.createVerticalStrut(12));
-        panel.add(createInsightCard("📊", "High Utilization = Long Waits",
+        panel.add(createInsightCard("3", "High Utilization = Long Waits",
                 "Server utilization near 100% means efficiency but also longer waiting times."));
         panel.add(Box.createVerticalStrut(12));
-        panel.add(createInsightCard("🎲", "Variability Matters",
+        panel.add(createInsightCard("4", "Variability Matters",
                 "Same averages can produce different queues due to random variation."));
 
         return panel;

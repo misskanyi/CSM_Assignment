@@ -489,13 +489,6 @@ public class GameTheme {
         UIManager.put("Panel.background", BACKGROUND_CARD);
         UIManager.put("OptionPane.messageForeground", TEXT_PRIMARY);
         
-        String icon = switch (messageType) {
-            case JOptionPane.INFORMATION_MESSAGE -> "✅ ";
-            case JOptionPane.WARNING_MESSAGE -> "⚠️ ";
-            case JOptionPane.ERROR_MESSAGE -> "❌ ";
-            default -> "ℹ️ ";
-        };
-        
-        JOptionPane.showMessageDialog(parent, message, icon + title, messageType);
+        JOptionPane.showMessageDialog(parent, message, title, messageType);
     }
 }

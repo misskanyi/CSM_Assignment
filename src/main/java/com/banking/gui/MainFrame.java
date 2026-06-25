@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
     
     private JPanel navPanel;
     private int selectedTab = 0;
-    private final String[] tabIcons = {"📖", "🎮", "📊", "📈"};
+    private final String[] tabIcons = {"", "", "", ""};
     private final String[] tabNames = {"Guide", "Simulation", "Results", "Analytics"};
     private CardLayout cardLayout;
     private JPanel contentPanel;
@@ -128,10 +128,10 @@ public class MainFrame extends JFrame {
         titlePanel.add(title);
         titlePanel.add(subtitle);
         
-        JButton clearBtn = GameTheme.createGameButton("🔄 Clear Simulation", GameTheme.DANGER);
+        JButton clearBtn = GameTheme.createGameButton("Clear Simulation", GameTheme.DANGER);
         clearBtn.addActionListener(e -> clearSimulation());
 
-        JButton exportBtn = GameTheme.createAccentButton("📁 Export to Excel");
+        JButton exportBtn = GameTheme.createAccentButton("Export to Excel");
         exportBtn.addActionListener(e -> exportToExcel());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
@@ -181,15 +181,10 @@ public class MainFrame extends JFrame {
         statusPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         statusPanel.setMaximumSize(new Dimension(160, 80));
         
-        JLabel statusIcon = new JLabel("💡");
-        statusIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
-        
         JLabel statusText = new JLabel("<html><b>Pro Tip</b><br><span style='color:#94a3b8'>Run multiple simulations!</span></html>");
         statusText.setFont(GameTheme.FONT_SMALL);
         statusText.setForeground(GameTheme.TEXT_PRIMARY);
-        
-        statusPanel.add(statusIcon, BorderLayout.WEST);
-        statusPanel.add(Box.createHorizontalStrut(10), BorderLayout.CENTER);
+
         statusPanel.add(statusText, BorderLayout.CENTER);
         
         nav.add(statusPanel);
@@ -317,8 +312,7 @@ public class MainFrame extends JFrame {
         content.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         
         // Success icon
-        JLabel icon = new JLabel("🎉", SwingConstants.CENTER);
-        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+        JLabel icon = new JLabel("", SwingConstants.CENTER);
         
         // Title
         JLabel title = new JLabel("Simulation Complete!", SwingConstants.CENTER);
@@ -334,13 +328,13 @@ public class MainFrame extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setOpaque(false);
         
-        JButton resultsBtn = GameTheme.createPrimaryButton("📊 View Results");
+        JButton resultsBtn = GameTheme.createPrimaryButton("View Results");
         resultsBtn.addActionListener(e -> {
             dialog.dispose();
             selectTab(2);
         });
         
-        JButton analyticsBtn = GameTheme.createSecondaryButton("📈 View Analytics");
+        JButton analyticsBtn = GameTheme.createSecondaryButton("View Analytics");
         analyticsBtn.addActionListener(e -> {
             dialog.dispose();
             selectTab(3);
@@ -413,8 +407,7 @@ public class MainFrame extends JFrame {
             content.setOpaque(false);
             content.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
             
-            JLabel icon = new JLabel("⚠️", SwingConstants.CENTER);
-            icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
+            JLabel icon = new JLabel("!", SwingConstants.CENTER);
             
             JLabel message = new JLabel("<html><center>Run a simulation first<br>before exporting!</center></html>", SwingConstants.CENTER);
             message.setFont(GameTheme.FONT_BODY);
