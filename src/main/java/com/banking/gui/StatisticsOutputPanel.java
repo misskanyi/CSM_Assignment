@@ -12,6 +12,7 @@ import java.awt.geom.RoundRectangle2D;
  */
 public class StatisticsOutputPanel extends JPanel {
 
+    private final Runnable onClear;
     private final StatCard totalCustomersCard;
     private final StatCard avgWaitingCard;
     private final StatCard avgServiceCard;
@@ -26,7 +27,8 @@ public class StatisticsOutputPanel extends JPanel {
     private final GaugePanel serverUtilGauge;
     private final GaugePanel probWaitingGauge;
 
-    public StatisticsOutputPanel() {
+    public StatisticsOutputPanel(Runnable onClear) {
+        this.onClear = onClear;
         setOpaque(false);
         setLayout(new BorderLayout(0, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
@@ -90,24 +92,37 @@ public class StatisticsOutputPanel extends JPanel {
     }
     
     private JPanel createTitleSection() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
-        
+
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        left.setOpaque(false);
+
         JLabel icon = new JLabel("📈");
         icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-        
+
         JLabel title = new JLabel("Analytics Dashboard");
         title.setFont(GameTheme.FONT_HEADER);
         title.setForeground(GameTheme.TEXT_PRIMARY);
-        
+
         JLabel subtitle = new JLabel("  •  Queue Performance Metrics");
         subtitle.setFont(GameTheme.FONT_BODY);
         subtitle.setForeground(GameTheme.TEXT_SECONDARY);
-        
-        panel.add(icon);
-        panel.add(title);
-        panel.add(subtitle);
-        
+
+        left.add(icon);
+        left.add(title);
+        left.add(subtitle);
+
+        JButton clearBtn = GameTheme.createGameButton("Clear", GameTheme.DANGER);
+        clearBtn.addActionListener(e -> onClear.run());
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        right.setOpaque(false);
+        right.add(clearBtn);
+
+        panel.add(left, BorderLayout.WEST);
+        panel.add(right, BorderLayout.EAST);
+
         return panel;
     }
 

@@ -19,8 +19,10 @@ public class TableOutputPanel extends JPanel {
     private final JTable table;
     private final DefaultTableModel tableModel;
     private JLabel recordCountLabel;
+    private final Runnable onClear;
 
-    public TableOutputPanel() {
+    public TableOutputPanel(Runnable onClear) {
+        this.onClear = onClear;
         setOpaque(false);
         setLayout(new BorderLayout(0, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
@@ -137,7 +139,12 @@ public class TableOutputPanel extends JPanel {
         recordCountLabel.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
         
         badgePanel.add(recordCountLabel);
-        
+
+        JButton clearBtn = GameTheme.createGameButton("Clear", GameTheme.DANGER);
+        clearBtn.addActionListener(e -> onClear.run());
+        badgePanel.add(Box.createHorizontalStrut(10));
+        badgePanel.add(clearBtn);
+
         // Legend
         JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
         legendPanel.setOpaque(false);

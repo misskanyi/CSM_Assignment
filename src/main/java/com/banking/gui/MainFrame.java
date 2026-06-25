@@ -54,8 +54,8 @@ public class MainFrame extends JFrame {
         
         // Content panels
         inputPanel = new InputPanel();
-        tableOutputPanel = new TableOutputPanel();
-        statisticsOutputPanel = new StatisticsOutputPanel();
+        tableOutputPanel = new TableOutputPanel(this::clearSimulation);
+        statisticsOutputPanel = new StatisticsOutputPanel(this::clearSimulation);
         InstructionsPanel instructionsPanel = new InstructionsPanel();
 
         inputPanel.setSimulationListener(this::runSimulation);
@@ -363,8 +363,8 @@ public class MainFrame extends JFrame {
 
     private void clearSimulation() {
         int choice = JOptionPane.showConfirmDialog(this,
-                "Clear all input data and simulation results?\nThis cannot be undone.",
-                "Clear Simulation",
+                "Are you sure you want to clear everything?\n\nThis will reset the Simulation, Results, and Analytics pages.\nThis cannot be undone.",
+                "Clear All Pages",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
 
