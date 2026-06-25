@@ -37,16 +37,16 @@ public class StatisticsOutputPanel extends JPanel {
         JPanel titlePanel = createTitleSection();
 
         // Create stat cards
-        totalCustomersCard = new StatCard("👥", "Total Customers", "—", GameTheme.PRIMARY);
-        avgWaitingCard = new StatCard("⏳", "Avg Wait Time", "— min", GameTheme.ACCENT);
-        avgServiceCard = new StatCard("🔧", "Avg Service Time", "— min", GameTheme.SECONDARY);
-        avgIatCard = new StatCard("🕐", "Avg Inter-Arrival", "— min", GameTheme.PRIMARY);
-        avgTimeInSystemCard = new StatCard("⏱️", "Avg Time in System", "— min", GameTheme.DANGER);
-        customersWaitedCard = new StatCard("🚶", "Customers Waited", "—", GameTheme.ACCENT);
-        totalSimTimeCard = new StatCard("📊", "Total Sim Time", "— min", GameTheme.PRIMARY);
-        totalIdleTimeCard = new StatCard("💤", "Total Idle Time", "— min", GameTheme.TEXT_MUTED);
-        avgQueueLengthCard = new StatCard("📏", "Avg Queue Length", "—", GameTheme.SECONDARY);
-        maxQueueLengthCard = new StatCard("📈", "Max Queue Length", "—", GameTheme.DANGER);
+        totalCustomersCard = new StatCard("", "Total Customers", "—", GameTheme.PRIMARY);
+        avgWaitingCard = new StatCard("", "Avg Wait Time", "— min", GameTheme.ACCENT);
+        avgServiceCard = new StatCard("", "Avg Service Time", "— min", GameTheme.SECONDARY);
+        avgIatCard = new StatCard("", "Avg Inter-Arrival", "— min", GameTheme.PRIMARY);
+        avgTimeInSystemCard = new StatCard("", "Avg Time in System", "— min", GameTheme.DANGER);
+        customersWaitedCard = new StatCard("", "Customers Waited", "—", GameTheme.ACCENT);
+        totalSimTimeCard = new StatCard("", "Total Sim Time", "— min", GameTheme.PRIMARY);
+        totalIdleTimeCard = new StatCard("", "Total Idle Time", "— min", GameTheme.TEXT_MUTED);
+        avgQueueLengthCard = new StatCard("", "Avg Queue Length", "—", GameTheme.SECONDARY);
+        maxQueueLengthCard = new StatCard("", "Max Queue Length", "—", GameTheme.DANGER);
         
         // Create gauges
         serverUtilGauge = new GaugePanel("Server Utilization", 0, GameTheme.PRIMARY);
@@ -98,9 +98,6 @@ public class StatisticsOutputPanel extends JPanel {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         left.setOpaque(false);
 
-        JLabel icon = new JLabel("📈");
-        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
-
         JLabel title = new JLabel("Analytics Dashboard");
         title.setFont(GameTheme.FONT_HEADER);
         title.setForeground(GameTheme.TEXT_PRIMARY);
@@ -109,7 +106,6 @@ public class StatisticsOutputPanel extends JPanel {
         subtitle.setFont(GameTheme.FONT_BODY);
         subtitle.setForeground(GameTheme.TEXT_SECONDARY);
 
-        left.add(icon);
         left.add(title);
         left.add(subtitle);
 
