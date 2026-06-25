@@ -203,14 +203,15 @@ public class InstructionsPanel extends JPanel {
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        String text = "This app models a single bank teller serving customers one at a time. " +
-                "For each of " + QueueSimulator.CUSTOMER_COUNT + " customers, the simulation:";
-
-        panel.add(createParagraph(text));
+        panel.add(createParagraph(
+                "This app models a single bank teller serving customers one at a time. " +
+                "You control how many customers to simulate and the time distribution bounds. " +
+                "For each customer the simulation:"));
         panel.add(Box.createVerticalStrut(15));
-        panel.add(createBulletPoint("•", "Generates random inter-arrival times (1-8 minutes)"));
-        panel.add(createBulletPoint("•", "Generates random service times (1-6 minutes)"));
-        panel.add(createBulletPoint("•", "Tracks arrivals, waiting, service, and departures"));
+        panel.add(createBulletPoint("•", "Generates random inter-arrival times using Uniform(lower, upper)"));
+        panel.add(createBulletPoint("•", "Generates random service times using Uniform(lower, upper)"));
+        panel.add(createBulletPoint("•", "Tracks arrivals, waiting, service start, and departure"));
+        panel.add(createBulletPoint("•", "Computes per-customer and aggregate statistics"));
 
         return panel;
     }
@@ -220,17 +221,33 @@ public class InstructionsPanel extends JPanel {
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        panel.add(createStep("1", "Navigate to Simulation Tab", "Click 'Simulation' in the left menu"));
+        panel.add(createSubheader("Quick way — Configuration tab:"));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createStep("2", "Enter Random Numbers", "Generate automatically or input 100 values (0-1) per dataset"));
+        panel.add(createStep("1", "Open Configuration", "Click 'Configuration' in the left menu"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("2", "Set Parameters", "Enter number of customers, arrival bounds, and service bounds"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("3", "Run Simulation", "Click 'Run Simulation' — random numbers are generated for you"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("4", "View Results", "You are taken to the Results tab automatically"));
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(createSubheader("Advanced way — Simulation tab:"));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createStep("3", "Run Simulation", "Click the 'Run Simulation' button"));
+        panel.add(createStep("1", "Open Simulation", "Click 'Simulation' in the left menu"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("2", "Enter Random Numbers", "Paste 100 values (0 to 1) per dataset, or click 'Generate Random'"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("3", "Load from Excel", "Alternatively load your own numbers via 'Load Excel'"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("4", "Run & Review", "Click 'Run Simulation', then check Results and Analytics tabs"));
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(createSubheader("Exporting & resetting:"));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createStep("4", "View Results", "Check 'Results' for the table and 'Analytics' for statistics"));
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(createStep("5", "Export Data", "Click 'Export to Excel' to save your results"));
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(createStep("6", "Start Fresh", "Use 'Clear Simulation' to reset everything when done"));
+        panel.add(createStep("5", "Export to Excel", "Click 'Export to Excel' in the top-right header to save results"));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createStep("6", "Start Fresh", "Click 'Clear Simulation' in the header to reset everything"));
 
         return panel;
     }
@@ -247,15 +264,28 @@ public class InstructionsPanel extends JPanel {
         columnsGrid.setOpaque(false);
 
         columnsGrid.add(createColumnExplainer("#", "Customer number"));
-        columnsGrid.add(createColumnExplainer("IAT", "Time since last arrival"));
-        columnsGrid.add(createColumnExplainer("Arrival", "When customer joined queue"));
-        columnsGrid.add(createColumnExplainer("Service", "Time with teller"));
-        columnsGrid.add(createColumnExplainer("Start", "When service began"));
-        columnsGrid.add(createColumnExplainer("Wait", "Time spent waiting"));
-        columnsGrid.add(createColumnExplainer("Departure", "When customer left"));
-        columnsGrid.add(createColumnExplainer("Time in System", "Total time (wait + service)"));
+        columnsGrid.add(createColumnExplainer("IAT", "Time since previous customer arrived"));
+        columnsGrid.add(createColumnExplainer("Arrival", "When customer joined the queue"));
+        columnsGrid.add(createColumnExplainer("Service", "Duration of service at the teller"));
+        columnsGrid.add(createColumnExplainer("Start", "When service actually began"));
+        columnsGrid.add(createColumnExplainer("Wait", "Time spent waiting before service"));
+        columnsGrid.add(createColumnExplainer("Departure", "When customer left the bank"));
+        columnsGrid.add(createColumnExplainer("Time in System", "Total time = wait + service"));
 
         panel.add(columnsGrid);
+        panel.add(Box.createVerticalStrut(18));
+
+        panel.add(createSubheader("Row colour coding:"));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createBulletPoint("—", "Green row: customer was served immediately, no waiting time"));
+        panel.add(createBulletPoint("—", "Yellow row: customer had to wait in the queue"));
+
+        panel.add(Box.createVerticalStrut(18));
+        panel.add(createSubheader("Analytics Tab shows:"));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createBulletPoint("•", "Average waiting time, service time, and time in system"));
+        panel.add(createBulletPoint("•", "Server utilisation and idle time"));
+        panel.add(createBulletPoint("•", "Probability a customer waits, average queue length, max queue"));
 
         return panel;
     }
@@ -266,16 +296,16 @@ public class InstructionsPanel extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         panel.add(createInsightCard("1", "Arrival vs Service Rate",
-                "When customers arrive faster than they can be served, queues build up quickly."));
+                "When customers arrive faster than they are served, queues build up. Narrow the gap between arrival upper bound and service upper bound to observe this."));
         panel.add(Box.createVerticalStrut(12));
         panel.add(createInsightCard("2", "Single Server Bottleneck",
-                "With one teller, any burst of arrivals forces later customers to wait."));
+                "With one teller, any burst of arrivals forces later customers to wait. Yellow rows show where backlog accumulates."));
         panel.add(Box.createVerticalStrut(12));
-        panel.add(createInsightCard("3", "High Utilization = Long Waits",
-                "Server utilization near 100% means efficiency but also longer waiting times."));
+        panel.add(createInsightCard("3", "High Utilisation = Long Waits",
+                "Server utilisation near 100% means near-constant service but also longer queues for arriving customers."));
         panel.add(Box.createVerticalStrut(12));
-        panel.add(createInsightCard("4", "Variability Matters",
-                "Same averages can produce different queues due to random variation."));
+        panel.add(createInsightCard("4", "Bounds Drive the Outcome",
+                "Changing the lower and upper bounds in Configuration directly shifts average arrival and service times, letting you model fast vs slow scenarios."));
 
         return panel;
     }
@@ -285,11 +315,12 @@ public class InstructionsPanel extends JPanel {
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        panel.add(createTip("Run multiple simulations with different random numbers"));
-        panel.add(createTip("Compare statistics across runs to see variability"));
-        panel.add(createTip("Export results to Excel for deeper analysis"));
-        panel.add(createTip("Watch for high wait times - they indicate bottlenecks"));
-        panel.add(createTip("Use Clear Simulation when you're done to start over"));
+        panel.add(createTip("Use Configuration for quick experiments — no manual number entry needed"));
+        panel.add(createTip("Try different customer counts (e.g. 20 vs 200) to see how queue behaviour scales"));
+        panel.add(createTip("Widen service bounds to simulate an unpredictable teller"));
+        panel.add(createTip("Yellow rows in Results show which customers were impacted by the queue"));
+        panel.add(createTip("Export to Excel after each run to compare results side by side"));
+        panel.add(createTip("Use Clear Simulation to reset before starting a new experiment"));
 
         return panel;
     }

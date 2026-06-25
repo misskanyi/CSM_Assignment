@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class MainFrame extends JFrame {
 
+    private final ConfigurationPanel configurationPanel;
     private final InputPanel inputPanel;
     private final TableOutputPanel tableOutputPanel;
     private final StatisticsOutputPanel statisticsOutputPanel;
@@ -26,11 +27,18 @@ public class MainFrame extends JFrame {
 
     private List<Customer> lastResults;
     private QueueStatistics lastStatistics;
-    
+
     private JPanel navPanel;
     private int selectedTab = 0;
-    private final String[] tabIcons = {"", "", "", ""};
-    private final String[] tabNames = {"Guide", "Simulation", "Results", "Analytics"};
+    private final String[] tabIcons = {"", "", "", "", ""};
+    private final String[] tabNames = {"Guide", "Configuration", "Simulation", "Results", "Analytics"};
+    private final String[] tabTooltips = {
+        "How the simulator works and how to use it",
+        "Set customer count and time bounds, then run automatically",
+        "Manually enter or load random numbers to run a simulation",
+        "View the full per-customer results table",
+        "View aggregate statistics and queue performance metrics"
+    };
     private CardLayout cardLayout;
     private JPanel contentPanel;
 
@@ -53,11 +61,13 @@ public class MainFrame extends JFrame {
         navPanel = createNavigationPanel();
         
         // Content panels
+        configurationPanel = new ConfigurationPanel();
         inputPanel = new InputPanel();
         tableOutputPanel = new TableOutputPanel(this::clearSimulation);
         statisticsOutputPanel = new StatisticsOutputPanel(this::clearSimulation);
         InstructionsPanel instructionsPanel = new InstructionsPanel();
 
+        configurationPanel.setConfigListener(this::runSimulationFromTimes);
         inputPanel.setSimulationListener(this::runSimulation);
 
         // Card layout for content
@@ -65,6 +75,7 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.setOpaque(false);
         contentPanel.add(instructionsPanel, "guide");
+        contentPanel.add(configurationPanel, "configuration");
         contentPanel.add(inputPanel, "simulation");
         contentPanel.add(tableOutputPanel, "results");
         contentPanel.add(statisticsOutputPanel, "analytics");
@@ -220,6 +231,7 @@ public class MainFrame extends JFrame {
         button.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
         button.setMaximumSize(new Dimension(160, 50));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setToolTipText(tabTooltips[index]);
         
         JLabel iconLabel = new JLabel(tabIcons[index]);
         iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
@@ -257,9 +269,29 @@ public class MainFrame extends JFrame {
     
     private void selectTab(int index) {
         selectedTab = index;
-        String[] cardNames = {"guide", "simulation", "results", "analytics"};
+        String[] cardNames = {"guide", "configuration", "simulation", "results", "analytics"};
         cardLayout.show(contentPanel, cardNames[index]);
         navPanel.repaint();
+    }
+
+    private void runSimulationFromTimes(double[] iatTimes, double[] serviceTimes) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                lastResults = simulator.simulate(iatTimes, serviceTimes);
+                lastStatistics = simulator.computeStatistics(lastResults);
+                return null;
+            }
+            @Override
+            protected void done() {
+                setCursor(Cursor.getDefaultCursor());
+                tableOutputPanel.displayResults(lastResults);
+                statisticsOutputPanel.displayStatistics(lastStatistics);
+                showSuccessDialog();
+            }
+        };
+        worker.execute();
     }
 
     private void runSimulation(double[] iatRandoms, double[] serviceRandoms) {
@@ -320,7 +352,8 @@ public class MainFrame extends JFrame {
         title.setForeground(GameTheme.SUCCESS);
         
         // Message
-        JLabel message = new JLabel("<html><center>100 customers have been processed.<br>Check the Results and Analytics tabs!</center></html>", SwingConstants.CENTER);
+        int customerCount = lastResults != null ? lastResults.size() : 0;
+        JLabel message = new JLabel("<html><center>" + customerCount + " customers have been processed.<br>Check the Results and Analytics tabs!</center></html>", SwingConstants.CENTER);
         message.setFont(GameTheme.FONT_BODY);
         message.setForeground(GameTheme.TEXT_SECONDARY);
         
@@ -331,13 +364,13 @@ public class MainFrame extends JFrame {
         JButton resultsBtn = GameTheme.createPrimaryButton("View Results");
         resultsBtn.addActionListener(e -> {
             dialog.dispose();
-            selectTab(2);
+            selectTab(3);
         });
-        
+
         JButton analyticsBtn = GameTheme.createSecondaryButton("View Analytics");
         analyticsBtn.addActionListener(e -> {
             dialog.dispose();
-            selectTab(3);
+            selectTab(4);
         });
         
         buttonPanel.add(resultsBtn);
@@ -377,10 +410,9 @@ public class MainFrame extends JFrame {
         inputPanel.clear();
         tableOutputPanel.clear();
         statisticsOutputPanel.clear();
-        selectTab(1);
 
         GameTheme.showMessage(this, "Cleared",
-                "Simulation reset. You can start a new run from the Simulation tab.",
+                "Simulation reset. You can start a new run from the Configuration or Simulation tab.",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 

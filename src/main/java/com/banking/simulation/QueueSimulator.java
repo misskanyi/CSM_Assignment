@@ -30,9 +30,13 @@ public class QueueSimulator {
      * Generates inter-arrival times from random numbers using Uniform(1, 8).
      */
     public static double[] generateInterArrivalTimes(double[] randomNumbers) {
+        return generateInterArrivalTimes(randomNumbers, IAT_MIN, IAT_MAX);
+    }
+
+    public static double[] generateInterArrivalTimes(double[] randomNumbers, double min, double max) {
         double[] iat = new double[randomNumbers.length];
         for (int i = 0; i < randomNumbers.length; i++) {
-            iat[i] = uniform(randomNumbers[i], IAT_MIN, IAT_MAX);
+            iat[i] = uniform(randomNumbers[i], min, max);
         }
         return iat;
     }
@@ -41,27 +45,33 @@ public class QueueSimulator {
      * Generates service times from random numbers using Uniform(1, 6).
      */
     public static double[] generateServiceTimes(double[] randomNumbers) {
+        return generateServiceTimes(randomNumbers, SERVICE_MIN, SERVICE_MAX);
+    }
+
+    public static double[] generateServiceTimes(double[] randomNumbers, double min, double max) {
         double[] st = new double[randomNumbers.length];
         for (int i = 0; i < randomNumbers.length; i++) {
-            st[i] = uniform(randomNumbers[i], SERVICE_MIN, SERVICE_MAX);
+            st[i] = uniform(randomNumbers[i], min, max);
         }
         return st;
     }
 
     /**
-     * Runs the queue simulation for 100 customers.
+     * Runs the queue simulation.
      */
     public List<Customer> simulate(double[] interArrivalTimes, double[] serviceTimes) {
-        if (interArrivalTimes.length != CUSTOMER_COUNT || serviceTimes.length != CUSTOMER_COUNT) {
-            throw new IllegalArgumentException(
-                    "Both datasets must contain exactly " + CUSTOMER_COUNT + " values.");
+        if (interArrivalTimes.length != serviceTimes.length) {
+            throw new IllegalArgumentException("Both datasets must contain the same number of values.");
+        }
+        if (interArrivalTimes.length == 0) {
+            throw new IllegalArgumentException("Must have at least one customer.");
         }
 
-        List<Customer> customers = new ArrayList<>(CUSTOMER_COUNT);
-        double clock = 0.0;
+        int count = interArrivalTimes.length;
+        List<Customer> customers = new ArrayList<>(count);
         double serverFreeTime = 0.0;
 
-        for (int i = 0; i < CUSTOMER_COUNT; i++) {
+        for (int i = 0; i < count; i++) {
             int customerNumber = i + 1;
             double iat = interArrivalTimes[i];
             double serviceTime = serviceTimes[i];
@@ -77,7 +87,6 @@ public class QueueSimulator {
                     serviceStartTime, waitingTime, departureTime, timeInSystem));
 
             serverFreeTime = departureTime;
-            clock = departureTime;
         }
 
         return customers;

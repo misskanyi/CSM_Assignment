@@ -96,7 +96,7 @@ public class InputPanel extends JPanel {
         infoCard.setOpaque(false);
         infoCard.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         
-        JLabel infoText = new JLabel("Enter 100 random numbers (0-1) for each dataset, or generate them automatically");
+        JLabel infoText = new JLabel("Enter 100 random numbers between 0 and 1 for each dataset, or generate them automatically");
         infoText.setFont(GameTheme.FONT_BODY);
         infoText.setForeground(GameTheme.TEXT_SECONDARY);
 
