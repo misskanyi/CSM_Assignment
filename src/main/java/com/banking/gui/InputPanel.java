@@ -54,9 +54,9 @@ public class InputPanel extends JPanel {
         });
         
         contentPanel.add(createDataCard("", "Inter-Arrival Times",
-                "Uniform(1, 8) minutes", iatTextArea, true));
+                "Uniform distribution gaps", iatTextArea, true));
         contentPanel.add(createDataCard("", "Service Times",
-                "Uniform(1, 6) minutes", serviceTextArea, false));
+                "Uniform distribution service", serviceTextArea, false));
         
         // Button panel
         JPanel buttonPanel = createButtonPanel();
@@ -64,6 +64,14 @@ public class InputPanel extends JPanel {
         add(titlePanel, BorderLayout.NORTH);
         add(contentPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private int getRuntimeCustomerCount() {
+        Container topFrame = SwingUtilities.getWindowAncestor(this);
+        if (topFrame instanceof MainFrame) {
+            return ((MainFrame) topFrame).getConfiguredCustomerCount();
+        }
+        return 100;
     }
     
     private JPanel createTitleSection() {
@@ -96,7 +104,7 @@ public class InputPanel extends JPanel {
         infoCard.setOpaque(false);
         infoCard.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         
-        JLabel infoText = new JLabel("Enter 100 random numbers (0-1) for each dataset, or generate them automatically");
+        JLabel infoText = new JLabel("Enter the required random numbers (0-1) for each dataset, or generate them automatically");
         infoText.setFont(GameTheme.FONT_BODY);
         infoText.setForeground(GameTheme.TEXT_SECONDARY);
 
@@ -163,14 +171,16 @@ public class InputPanel extends JPanel {
         JPanel counterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         counterPanel.setOpaque(false);
         
-        JLabel countLabel = new JLabel("0/100") {
+        int maxTarget = getRuntimeCustomerCount();
+        JLabel countLabel = new JLabel("0/" + maxTarget) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
                 String text = getText();
-                boolean isComplete = text.startsWith("100/");
+                int currentMax = getRuntimeCustomerCount();
+                boolean isComplete = text.startsWith(currentMax + "/");
                 
                 g2d.setColor(isComplete ? GameTheme.SUCCESS : GameTheme.BACKGROUND_ELEVATED);
                 g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
@@ -270,8 +280,9 @@ public class InputPanel extends JPanel {
         if (label == null) return;
         
         String text = area.getText().trim();
+        int maxTarget = getRuntimeCustomerCount();
         if (text.isEmpty()) {
-            label.setText("0/100");
+            label.setText("0/" + maxTarget);
             label.repaint();
             return;
         }
@@ -283,7 +294,7 @@ public class InputPanel extends JPanel {
                 count++;
             }
         }
-        label.setText(count + "/100");
+        label.setText(count + "/" + maxTarget);
         label.repaint();
     }
 
@@ -302,11 +313,12 @@ public class InputPanel extends JPanel {
         Random random = new Random();
         StringBuilder iatBuilder = new StringBuilder();
         StringBuilder serviceBuilder = new StringBuilder();
+        int maxTarget = getRuntimeCustomerCount();
 
-        for (int i = 0; i < QueueSimulator.CUSTOMER_COUNT; i++) {
+        for (int i = 0; i < maxTarget; i++) {
             iatBuilder.append(String.format("%.4f", random.nextDouble()));
             serviceBuilder.append(String.format("%.4f", random.nextDouble()));
-            if (i < QueueSimulator.CUSTOMER_COUNT - 1) {
+            if (i < maxTarget - 1) {
                 iatBuilder.append("\n");
                 serviceBuilder.append("\n");
             }
@@ -314,7 +326,6 @@ public class InputPanel extends JPanel {
 
         iatTextArea.setText(iatBuilder.toString());
         serviceTextArea.setText(serviceBuilder.toString());
-        
         showSuccessToast("Random numbers generated!");
     }
     
@@ -366,7 +377,7 @@ public class InputPanel extends JPanel {
         try {
             double[][] datasets = ExcelHandler.readTwoDatasets(
                     chooser.getSelectedFile().getAbsolutePath(),
-                    QueueSimulator.CUSTOMER_COUNT);
+                    getRuntimeCustomerCount());
 
             iatTextArea.setText(formatArray(datasets[0]));
             serviceTextArea.setText(formatArray(datasets[1]));
@@ -382,15 +393,16 @@ public class InputPanel extends JPanel {
     private void saveExcelTemplate() {
         double[] iatRandoms;
         double[] serviceRandoms;
+        int maxTarget = getRuntimeCustomerCount();
 
         try {
             iatRandoms = parseRandomNumbers(iatTextArea.getText());
             serviceRandoms = parseRandomNumbers(serviceTextArea.getText());
         } catch (IllegalArgumentException ex) {
             Random random = new Random();
-            iatRandoms = new double[QueueSimulator.CUSTOMER_COUNT];
-            serviceRandoms = new double[QueueSimulator.CUSTOMER_COUNT];
-            for (int i = 0; i < QueueSimulator.CUSTOMER_COUNT; i++) {
+            iatRandoms = new double[maxTarget];
+            serviceRandoms = new double[maxTarget];
+            for (int i = 0; i < maxTarget; i++) {
                 iatRandoms[i] = random.nextDouble();
                 serviceRandoms[i] = random.nextDouble();
             }
@@ -432,6 +444,7 @@ public class InputPanel extends JPanel {
     private double[] parseRandomNumbers(String text) {
         String[] lines = text.trim().split("[,\\s]+");
         java.util.List<Double> values = new java.util.ArrayList<>();
+        int maxTarget = getRuntimeCustomerCount();
 
         for (String line : lines) {
             String trimmed = line.trim();
@@ -450,9 +463,9 @@ public class InputPanel extends JPanel {
             }
         }
 
-        if (values.size() != QueueSimulator.CUSTOMER_COUNT) {
+        if (values.size() != maxTarget) {
             throw new IllegalArgumentException(
-                    "Each dataset must contain exactly " + QueueSimulator.CUSTOMER_COUNT
+                    "Each dataset must contain exactly " + maxTarget
                             + " random numbers. Found: " + values.size());
         }
 

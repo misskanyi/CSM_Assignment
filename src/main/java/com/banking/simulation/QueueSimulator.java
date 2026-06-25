@@ -7,17 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Single-server queue simulator for a banking system.
- * Inter-arrival times: Uniform(1, 8) minutes
- * Service times: Uniform(1, 6) minutes
+ * Single-server queue simulator for a banking system with configurable settings.
  */
 public class QueueSimulator {
 
-    public static final int CUSTOMER_COUNT = 100;
-    public static final double IAT_MIN = 1.0;
-    public static final double IAT_MAX = 8.0;
-    public static final double SERVICE_MIN = 1.0;
-    public static final double SERVICE_MAX = 6.0;
+    private int customerCount = 100;
+    private double iatMin = 1.0;
+    private double iatMax = 8.0;
+    private double serviceMin = 1.0;
+    private double serviceMax = 6.0;
+
+    public int getCustomerCount() { return customerCount; }
+    public void setCustomerCount(int customerCount) { this.customerCount = customerCount; }
+
+    public double getIatMin() { return iatMin; }
+    public void setIatMin(double iatMin) { this.iatMin = iatMin; }
+
+    public double getIatMax() { return iatMax; }
+    public void setIatMax(double iatMax) { this.iatMax = iatMax; }
+
+    public double getServiceMin() { return serviceMin; }
+    public void setServiceMin(double serviceMin) { this.serviceMin = serviceMin; }
+
+    public double getServiceMax() { return serviceMax; }
+    public void setServiceMax(double serviceMax) { this.serviceMax = serviceMax; }
 
     /**
      * Converts a uniform random number R in (0,1) to a value in [min, max].
@@ -27,41 +40,41 @@ public class QueueSimulator {
     }
 
     /**
-     * Generates inter-arrival times from random numbers using Uniform(1, 8).
+     * Generates inter-arrival times from random numbers using uniform bounds.
      */
-    public static double[] generateInterArrivalTimes(double[] randomNumbers) {
+    public double[] generateInterArrivalTimes(double[] randomNumbers) {
         double[] iat = new double[randomNumbers.length];
         for (int i = 0; i < randomNumbers.length; i++) {
-            iat[i] = uniform(randomNumbers[i], IAT_MIN, IAT_MAX);
+            iat[i] = uniform(randomNumbers[i], iatMin, iatMax);
         }
         return iat;
     }
 
     /**
-     * Generates service times from random numbers using Uniform(1, 6).
+     * Generates service times from random numbers using uniform bounds.
      */
-    public static double[] generateServiceTimes(double[] randomNumbers) {
+    public double[] generateServiceTimes(double[] randomNumbers) {
         double[] st = new double[randomNumbers.length];
         for (int i = 0; i < randomNumbers.length; i++) {
-            st[i] = uniform(randomNumbers[i], SERVICE_MIN, SERVICE_MAX);
+            st[i] = uniform(randomNumbers[i], serviceMin, serviceMax);
         }
         return st;
     }
 
     /**
-     * Runs the queue simulation for 100 customers.
+     * Runs the queue simulation for the customers.
      */
     public List<Customer> simulate(double[] interArrivalTimes, double[] serviceTimes) {
-        if (interArrivalTimes.length != CUSTOMER_COUNT || serviceTimes.length != CUSTOMER_COUNT) {
+        if (interArrivalTimes.length != customerCount || serviceTimes.length != customerCount) {
             throw new IllegalArgumentException(
-                    "Both datasets must contain exactly " + CUSTOMER_COUNT + " values.");
+                    "Both datasets must contain exactly " + customerCount + " values.");
         }
 
-        List<Customer> customers = new ArrayList<>(CUSTOMER_COUNT);
+        List<Customer> customers = new ArrayList<>(customerCount);
         double clock = 0.0;
         double serverFreeTime = 0.0;
 
-        for (int i = 0; i < CUSTOMER_COUNT; i++) {
+        for (int i = 0; i < customerCount; i++) {
             int customerNumber = i + 1;
             double iat = interArrivalTimes[i];
             double serviceTime = serviceTimes[i];

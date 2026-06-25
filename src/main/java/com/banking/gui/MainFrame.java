@@ -14,11 +14,9 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Main application window with game-inspired UI design.
- */
 public class MainFrame extends JFrame {
 
+    private final ConfigurationPanel configurationPanel;
     private final InputPanel inputPanel;
     private final TableOutputPanel tableOutputPanel;
     private final StatisticsOutputPanel statisticsOutputPanel;
@@ -29,8 +27,8 @@ public class MainFrame extends JFrame {
     
     private JPanel navPanel;
     private int selectedTab = 0;
-    private final String[] tabIcons = {"", "", "", ""};
-    private final String[] tabNames = {"Guide", "Simulation", "Results", "Analytics"};
+    private final String[] tabIcons = {"📖", "⚙️", "🎮", "📊", "📈"};
+    private final String[] tabNames = {"Guide", "Configuration", "Simulation", "Results", "Analytics"};
     private CardLayout cardLayout;
     private JPanel contentPanel;
 
@@ -42,17 +40,13 @@ public class MainFrame extends JFrame {
         setMinimumSize(new Dimension(1100, 750));
         setLocationRelativeTo(null);
         
-        // Create main container with gradient background
         JPanel mainContainer = GameTheme.createGradientPanel();
         mainContainer.setLayout(new BorderLayout());
         
-        // Header panel with title and export button
         JPanel headerPanel = createHeaderPanel();
-        
-        // Navigation panel (left sidebar)
         navPanel = createNavigationPanel();
         
-        // Content panels
+        configurationPanel = new ConfigurationPanel();
         inputPanel = new InputPanel();
         tableOutputPanel = new TableOutputPanel();
         statisticsOutputPanel = new StatisticsOutputPanel();
@@ -60,16 +54,15 @@ public class MainFrame extends JFrame {
 
         inputPanel.setSimulationListener(this::runSimulation);
 
-        // Card layout for content
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         contentPanel.setOpaque(false);
         contentPanel.add(instructionsPanel, "guide");
+        contentPanel.add(configurationPanel, "configuration");
         contentPanel.add(inputPanel, "simulation");
         contentPanel.add(tableOutputPanel, "results");
         contentPanel.add(statisticsOutputPanel, "analytics");
         
-        // Add padding around content
         JPanel paddedContent = new JPanel(new BorderLayout());
         paddedContent.setOpaque(false);
         paddedContent.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
@@ -80,9 +73,84 @@ public class MainFrame extends JFrame {
         mainContainer.add(paddedContent, BorderLayout.CENTER);
         
         setContentPane(mainContainer);
-        
-        // Show first tab
         selectTab(0);
+    }
+
+    public int getConfiguredCustomerCount() {
+        try {
+            return configurationPanel.getCustomerCount();
+        } catch (Exception e) {
+            return 100;
+        }
+    }
+    
+    private void selectTab(int index) {
+        selectedTab = index;
+        String[] cardNames = {"guide", "configuration", "simulation", "results", "analytics"};
+        cardLayout.show(contentPanel, cardNames[index]);
+        navPanel.repaint();
+    }
+
+    private void runSimulation(double[] iatRandoms, double[] serviceRandoms) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        try {
+            simulator.setCustomerCount(configurationPanel.getCustomerCount());
+            simulator.setIatMin(configurationPanel.getArrivalMin());
+            simulator.setIatMax(configurationPanel.getArrivalMax());
+            simulator.setServiceMin(configurationPanel.getServiceMin());
+            simulator.setServiceMax(configurationPanel.getServiceMax());
+        } catch (Exception ex) {
+            setCursor(Cursor.getDefaultCursor());
+            GameTheme.showMessage(this, "Configuration Error",
+                    "Please double check your parameters are numeric variables.",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                double[] interArrivalTimes = simulator.generateInterArrivalTimes(iatRandoms);
+                double[] serviceTimes = simulator.generateServiceTimes(serviceRandoms);
+                lastResults = simulator.simulate(interArrivalTimes, serviceTimes);
+                lastStatistics = simulator.computeStatistics(lastResults);
+                return null;
+            }
+            
+            @Override
+            protected void done() {
+                setCursor(Cursor.getDefaultCursor());
+                tableOutputPanel.displayResults(lastResults);
+                statisticsOutputPanel.displayStatistics(lastStatistics);
+                showSuccessDialog();
+            }
+        };
+        worker.execute();
+    }
+
+    private void clearSimulation() {
+        int choice = JOptionPane.showConfirmDialog(this,
+                "Reset all configuration variables, fields and simulation history?\nThis action is final.",
+                "Clear Simulation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        lastResults = null;
+        lastStatistics = null;
+        configurationPanel.resetToDefaults();
+        inputPanel.clear();
+        tableOutputPanel.clear();
+        statisticsOutputPanel.clear();
+        selectTab(1);
+
+        GameTheme.showMessage(this, "Cleared",
+                "Simulation reset. You can start a new run from the Configuration tab.",
+                JOptionPane.INFORMATION_MESSAGE);
     }
     
     private JPanel createHeaderPanel() {
@@ -91,25 +159,19 @@ public class MainFrame extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Gradient background
                 GradientPaint gradient = new GradientPaint(
                     0, 0, GameTheme.BACKGROUND_CARD,
                     getWidth(), 0, new Color(30, 27, 75)
                 );
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
-                
-                // Bottom border glow
                 g2d.setColor(GameTheme.PRIMARY);
                 g2d.fillRect(0, getHeight() - 2, getWidth(), 2);
-                
                 g2d.dispose();
             }
         };
         header.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         
-        // Title with icon
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         titlePanel.setOpaque(false);
         
@@ -120,23 +182,14 @@ public class MainFrame extends JFrame {
         title.setFont(GameTheme.FONT_TITLE);
         title.setForeground(GameTheme.TEXT_PRIMARY);
         
-        JLabel subtitle = new JLabel("  •  Banking System Simulation");
-        subtitle.setFont(GameTheme.FONT_BODY);
-        subtitle.setForeground(GameTheme.TEXT_SECONDARY);
-        
         titlePanel.add(icon);
         titlePanel.add(title);
-        titlePanel.add(subtitle);
         
-        JButton clearBtn = GameTheme.createGameButton("Clear Simulation", GameTheme.DANGER);
-        clearBtn.addActionListener(e -> clearSimulation());
-
-        JButton exportBtn = GameTheme.createAccentButton("Export to Excel");
+        JButton exportBtn = GameTheme.createAccentButton("📁 Export to Excel");
         exportBtn.addActionListener(e -> exportToExcel());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.add(clearBtn);
         buttonPanel.add(exportBtn);
         
         header.add(titlePanel, BorderLayout.WEST);
@@ -165,30 +218,6 @@ public class MainFrame extends JFrame {
         }
         
         nav.add(Box.createVerticalGlue());
-        
-        // Status indicator
-        JPanel statusPanel = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setColor(GameTheme.BACKGROUND_ELEVATED);
-                g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-                g2d.dispose();
-            }
-        };
-        statusPanel.setOpaque(false);
-        statusPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        statusPanel.setMaximumSize(new Dimension(160, 80));
-        
-        JLabel statusText = new JLabel("<html><b>Pro Tip</b><br><span style='color:#94a3b8'>Run multiple simulations!</span></html>");
-        statusText.setFont(GameTheme.FONT_SMALL);
-        statusText.setForeground(GameTheme.TEXT_PRIMARY);
-
-        statusPanel.add(statusText, BorderLayout.CENTER);
-        
-        nav.add(statusPanel);
-        
         return nav;
     }
     
@@ -200,7 +229,6 @@ public class MainFrame extends JFrame {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
                 if (selectedTab == index) {
-                    // Selected state
                     GradientPaint gradient = new GradientPaint(
                         0, 0, GameTheme.PRIMARY,
                         getWidth(), 0, GameTheme.PRIMARY.darker()
@@ -208,7 +236,6 @@ public class MainFrame extends JFrame {
                     g2d.setPaint(gradient);
                     g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 } else if (getMousePosition() != null) {
-                    // Hover state
                     g2d.setColor(GameTheme.BACKGROUND_ELEVATED);
                     g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 }
@@ -240,12 +267,10 @@ public class MainFrame extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 selectTab(index);
             }
-            
             @Override
             public void mouseEntered(MouseEvent e) {
                 button.repaint();
             }
-            
             @Override
             public void mouseExited(MouseEvent e) {
                 button.repaint();
@@ -254,185 +279,10 @@ public class MainFrame extends JFrame {
         
         return button;
     }
-    
-    private void selectTab(int index) {
-        selectedTab = index;
-        String[] cardNames = {"guide", "simulation", "results", "analytics"};
-        cardLayout.show(contentPanel, cardNames[index]);
-        navPanel.repaint();
-    }
-
-    private void runSimulation(double[] iatRandoms, double[] serviceRandoms) {
-        // Show loading state
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                double[] interArrivalTimes = QueueSimulator.generateInterArrivalTimes(iatRandoms);
-                double[] serviceTimes = QueueSimulator.generateServiceTimes(serviceRandoms);
-                lastResults = simulator.simulate(interArrivalTimes, serviceTimes);
-                lastStatistics = simulator.computeStatistics(lastResults);
-                return null;
-            }
-            
-            @Override
-            protected void done() {
-                setCursor(Cursor.getDefaultCursor());
-                tableOutputPanel.displayResults(lastResults);
-                statisticsOutputPanel.displayStatistics(lastStatistics);
-                
-                // Show success dialog with game-like styling
-                showSuccessDialog();
-            }
-        };
-        worker.execute();
-    }
-    
-    private void showSuccessDialog() {
-        JDialog dialog = new JDialog(this, "Simulation Complete", true);
-        dialog.setUndecorated(true);
-        dialog.setSize(400, 280);
-        dialog.setLocationRelativeTo(this);
-        
-        JPanel content = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setColor(GameTheme.BACKGROUND_CARD);
-                g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20));
-                g2d.setColor(GameTheme.PRIMARY);
-                g2d.setStroke(new BasicStroke(2));
-                g2d.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 20, 20));
-                g2d.dispose();
-            }
-        };
-        content.setOpaque(false);
-        content.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        
-        // Success icon
-        JLabel icon = new JLabel("", SwingConstants.CENTER);
-        
-        // Title
-        JLabel title = new JLabel("Simulation Complete!", SwingConstants.CENTER);
-        title.setFont(GameTheme.FONT_HEADER);
-        title.setForeground(GameTheme.SUCCESS);
-        
-        // Message
-        JLabel message = new JLabel("<html><center>100 customers have been processed.<br>Check the Results and Analytics tabs!</center></html>", SwingConstants.CENTER);
-        message.setFont(GameTheme.FONT_BODY);
-        message.setForeground(GameTheme.TEXT_SECONDARY);
-        
-        // Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        buttonPanel.setOpaque(false);
-        
-        JButton resultsBtn = GameTheme.createPrimaryButton("View Results");
-        resultsBtn.addActionListener(e -> {
-            dialog.dispose();
-            selectTab(2);
-        });
-        
-        JButton analyticsBtn = GameTheme.createSecondaryButton("View Analytics");
-        analyticsBtn.addActionListener(e -> {
-            dialog.dispose();
-            selectTab(3);
-        });
-        
-        buttonPanel.add(resultsBtn);
-        buttonPanel.add(analyticsBtn);
-        
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setOpaque(false);
-        centerPanel.add(icon);
-        centerPanel.add(Box.createVerticalStrut(15));
-        centerPanel.add(title);
-        centerPanel.add(Box.createVerticalStrut(10));
-        centerPanel.add(message);
-        
-        content.add(centerPanel, BorderLayout.CENTER);
-        content.add(buttonPanel, BorderLayout.SOUTH);
-        
-        dialog.setContentPane(content);
-        dialog.getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
-        dialog.setBackground(new Color(0, 0, 0, 0));
-        dialog.setVisible(true);
-    }
-
-    private void clearSimulation() {
-        int choice = JOptionPane.showConfirmDialog(this,
-                "Clear all input data and simulation results?\nThis cannot be undone.",
-                "Clear Simulation",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
-
-        if (choice != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        lastResults = null;
-        lastStatistics = null;
-        inputPanel.clear();
-        tableOutputPanel.clear();
-        statisticsOutputPanel.clear();
-        selectTab(1);
-
-        GameTheme.showMessage(this, "Cleared",
-                "Simulation reset. You can start a new run from the Simulation tab.",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
 
     private void exportToExcel() {
         if (lastResults == null || lastStatistics == null) {
-            JDialog dialog = new JDialog(this, "No Results", true);
-            dialog.setUndecorated(true);
-            dialog.setSize(350, 200);
-            dialog.setLocationRelativeTo(this);
-            
-            JPanel content = new JPanel(new BorderLayout()) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2d = (Graphics2D) g.create();
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2d.setColor(GameTheme.BACKGROUND_CARD);
-                    g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20));
-                    g2d.setColor(GameTheme.ACCENT);
-                    g2d.setStroke(new BasicStroke(2));
-                    g2d.draw(new RoundRectangle2D.Float(1, 1, getWidth() - 3, getHeight() - 3, 20, 20));
-                    g2d.dispose();
-                }
-            };
-            content.setOpaque(false);
-            content.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-            
-            JLabel icon = new JLabel("!", SwingConstants.CENTER);
-            
-            JLabel message = new JLabel("<html><center>Run a simulation first<br>before exporting!</center></html>", SwingConstants.CENTER);
-            message.setFont(GameTheme.FONT_BODY);
-            message.setForeground(GameTheme.TEXT_PRIMARY);
-            
-            JButton okBtn = GameTheme.createAccentButton("Got it!");
-            okBtn.addActionListener(e -> dialog.dispose());
-            
-            JPanel centerPanel = new JPanel();
-            centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-            centerPanel.setOpaque(false);
-            centerPanel.add(icon);
-            centerPanel.add(Box.createVerticalStrut(15));
-            centerPanel.add(message);
-            
-            JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            btnPanel.setOpaque(false);
-            btnPanel.add(okBtn);
-            
-            content.add(centerPanel, BorderLayout.CENTER);
-            content.add(btnPanel, BorderLayout.SOUTH);
-            
-            dialog.setContentPane(content);
-            dialog.setBackground(new Color(0, 0, 0, 0));
-            dialog.setVisible(true);
+            GameTheme.showMessage(this, "No Results", "Run a simulation first before exporting!", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -459,5 +309,11 @@ public class MainFrame extends JFrame {
                     "Error exporting to Excel:\n" + ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void showSuccessDialog() {
+        GameTheme.showMessage(this, "Simulation Complete!", 
+                "The customers have been processed. Check the Results and Analytics tabs!", 
+                JOptionPane.INFORMATION_MESSAGE);
     }
 }

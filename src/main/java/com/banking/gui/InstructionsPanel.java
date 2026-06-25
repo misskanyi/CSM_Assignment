@@ -198,20 +198,17 @@ public class InstructionsPanel extends JPanel {
         return section;
     }
 
-    private JPanel createWhatSection() {
+   private JPanel createWhatSection() {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
         String text = "This app models a single bank teller serving customers one at a time. " +
-                "For each of " + QueueSimulator.CUSTOMER_COUNT + " customers, the simulation:";
-
+                "For each customer, the simulation:";
         panel.add(createParagraph(text));
         panel.add(Box.createVerticalStrut(15));
-        panel.add(createBulletPoint("•", "Generates random inter-arrival times (1-8 minutes)"));
-        panel.add(createBulletPoint("•", "Generates random service times (1-6 minutes)"));
+        panel.add(createBulletPoint("•", "Generates random inter-arrival times based on configuration limits"));
+        panel.add(createBulletPoint("•", "Generates random service times based on configuration limits"));
         panel.add(createBulletPoint("•", "Tracks arrivals, waiting, service, and departures"));
-
         return panel;
     }
 
