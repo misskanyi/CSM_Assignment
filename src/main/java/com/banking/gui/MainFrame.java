@@ -210,7 +210,7 @@ public class MainFrame extends JFrame {
         };
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
         nav.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-        nav.setPreferredSize(new Dimension(180, 0));
+        nav.setPreferredSize(new Dimension(220, 0));
         
         for (int i = 0; i < tabNames.length; i++) {
             nav.add(createNavButton(i));
@@ -245,7 +245,7 @@ public class MainFrame extends JFrame {
         };
         button.setOpaque(false);
         button.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
-        button.setMaximumSize(new Dimension(160, 50));
+        button.setMaximumSize(new Dimension(200, 50));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         JLabel iconLabel = new JLabel(tabIcons[index]);
