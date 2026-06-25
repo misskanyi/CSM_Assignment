@@ -91,8 +91,13 @@ public class ConfigurationPanel extends JPanel {
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         btnRow.setOpaque(false);
 
+<<<<<<< Updated upstream
+        JButton resetBtn = GameTheme.createGameButton("Reset", GameTheme.DANGER);
+        JButton runBtn   = GameTheme.createAccentButton("Run Simulation");
+=======
         JButton resetBtn = GameTheme.createGameButton("↺  Reset", GameTheme.DANGER);
         JButton runBtn   = GameTheme.createAccentButton("▶  Run Simulation");
+>>>>>>> Stashed changes
         resetBtn.addActionListener(e -> resetToDefaults());
         runBtn.addActionListener(e -> runSimulation());
 
